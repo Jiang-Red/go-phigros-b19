@@ -38,12 +38,13 @@ var (
 	w7, h7 float64 = 326, 2
 )
 var (
-	level string = "AT 15.9"
+	diff  float64 = 15.90
+	level string  = "AT 15.9"
 	//level
 	x8, y8 float64 = 144, 856
-	level2 string  = "15.90"
+	level2 float64 = 15.90
 	//level2
-	x9, y9 float64 = 154, 898
+	x9, y9 float64 = 138, 898
 	// rank
 	x10, y10 int    = 600, 770
 	score    string = "1000000"
@@ -52,7 +53,7 @@ var (
 	name     string  = "Shadow"
 	// name
 	x12, y12 float64 = 594, 740
-	acc      string  = "100.00%"
+	acc      float64 = 100.00
 	// acc
 	x13, y13 float64 = 576, 878
 
@@ -101,25 +102,33 @@ func main() {
 	font, _ = gg.LoadFontFace(file+Font, 54)
 	canvas.SetFontFace(font)
 	canvas.DrawString(pl+"yyw", 1434, 300)
-	canvas.DrawString(rks+"16.13", 1434, 380)
-	canvas.DrawString(cm+"彩49", 1434, 460)
+	canvas.DrawString(rks+strconv.FormatFloat(allrks(rksc(acc, diff), rksc(acc, diff)), 'f', 3, 64), 1434, 380)
+
+	chall, _ := gg.LoadPNG(file + Challengemode + "/rainbow.png")
+	canvas.DrawImage(img.Size(chall, 208, 100).Im, 1848, 392)
+
+	canvas.DrawString(cm, 1434, 460)
+	canvas.DrawString("49", 1916, 460)
 
 	rank, _ := img.LoadFirstFrame(file+Rank+"/phi.png", 110, 110)
 
 	var i int64 = 0
+	var xj, yj float64 = 1090, 200
 	for ; i < 20; i++ {
 		if i%2 == 0 {
 			mix(canvas, i, file, cutted, rank)
 
-			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x+1090, x1+1090, x2+1090, x3+1090, x4+1090, x5+1090, x6+1090, x7+1090, x8+1090, x9+1090, x10+1090, x11+1090, x12+1090, x13+1090
-			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+200, y1+200, y2+200, y3+200, y4+200, y5+200, y6+200, y7+200, y8+200, y9+200, y10+200, y11+200, y12+200, y13+200
+			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x+xj, x1+xj, x2+xj, x3+xj, x4+xj, x5+int(xj), x6+xj, x7+xj, x8+xj, x9+xj, x10+int(xj), x11+xj, x12+xj, x13+xj
+			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+yj, y1+yj, y2+yj, y3+yj, y4+yj, y5+int(yj), y6+yj, y7+yj, y8+yj, y9+yj, y10+int(yj), y11+yj, y12+yj, y13+yj
 		} else {
 			mix(canvas, i, file, cutted, rank)
 
-			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x-1090, x1-1090, x2-1090, x3-1090, x4-1090, x5-1090, x6-1090, x7-1090, x8-1090, x9-1090, x10-1090, x11-1090, x12-1090, x13-1090
-			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+200, y1+200, y2+200, y3+200, y4+200, y5+200, y6+200, y7+200, y8+200, y9+200, y10+200, y11+200, y12+200, y13+200
+			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x-xj, x1-xj, x2-xj, x3-xj, x4-xj, x5-int(xj), x6-xj, x7-xj, x8-xj, x9-xj, x10-int(xj), x11-xj, x12-xj, x13-xj
+			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+yj, y1+yj, y2+yj, y3+yj, y4+yj, y5+int(yj), y6+yj, y7+yj, y8+yj, y9+yj, y10+int(yj), y11+yj, y12+yj, y13+yj
 		}
 	}
+	x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x-xj, x1-xj, x2-xj, x3-xj, x4-xj, x5-int(xj), x6-xj, x7-xj, x8-xj, x9-xj, x10-int(xj), x11-xj, x12-xj, x13-xj
+	y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+-(yj*19), y1+-(yj*19), y2+-(yj*19), y3+-(yj*19), y4+-(yj*19), y5-int(yj*19), y6+-(yj*19), y7+-(yj*19), y8+-(yj*19), y9+-(yj*19), y10-int(yj*19), y11+-(yj*19), y12+-(yj*19), y13-(yj*19)
 
 	canvas.SavePNG(file + "/output.png")
 }
@@ -195,8 +204,8 @@ func mix(canvas *gg.Context, i int64, file string, imgs, rank *img.Factory) {
 	font, _ = gg.LoadFontFace(file+Font, 44)
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	fw, _ := canvas.MeasureString(acc)
-	canvas.DrawString(acc, x13+((w3-fw)/2), y13)
+	fw, _ := canvas.MeasureString(strconv.FormatFloat(acc, 'f', 2, 64) + "%")
+	canvas.DrawString(strconv.FormatFloat(acc, 'f', 2, 64)+"%", x13+((w3-fw)/2), y13)
 
 	// 画曲名
 	font, _ = gg.LoadFontFace(file+Font, 32)
@@ -226,8 +235,8 @@ func mix(canvas *gg.Context, i int64, file string, imgs, rank *img.Factory) {
 	font, _ = gg.LoadFontFace(file+Font, 44)
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	fw4, _ := canvas.MeasureString(level)
-	canvas.DrawString(level2, x9+((w2-fw4)/2), y9)
+	fw4, _ := canvas.MeasureString(strconv.FormatFloat(rksc(acc, diff), 'f', 2, 64))
+	canvas.DrawString(strconv.FormatFloat(rksc(acc, diff), 'f', 2, 64), x9+((w2-fw4)/2), y9)
 
 	// 画边缘
 	draw4(canvas, a, x4, y4, w4, h4)
@@ -251,4 +260,12 @@ func cut4img(imgs *img.Factory, angle float64) *img.Factory {
 		ax = (float64(maxy-autoadd) * (math.Cos(angle * math.Pi / 180.0)))
 	}
 	return dst
+}
+
+func rksc(accc, diff float64) float64 {
+	return ((100.0*(acc/100.0) - 55.0) / 45.0) * ((100.0*(acc/100.0) - 55.0) / 45.0) * diff
+}
+
+func allrks(phi, sco float64) float64 {
+	return (phi + (sco * 19)) / 20
 }
