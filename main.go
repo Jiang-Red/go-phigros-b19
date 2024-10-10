@@ -1,156 +1,224 @@
 package main
 
 import (
-	"fmt"
-	"image/color"
+	"encoding/json"
+	"image"
 	"math"
+	"math/rand"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
-	"github.com/Coloured-glaze/gg"
-	"github.com/FloatTech/zbputils/img"
+	"test/phigros/phigros"
+
+	"github.com/FloatTech/floatbox/file"
+	"github.com/FloatTech/gg"
+	"github.com/disintegration/imaging"
 )
 
-var (
-	// 排名背景
-	x, y float64 = 188, 682
-	w, h float64 = 70, 44
-	// 图片
-	x1, y1 float64 = 256, 682
-	w1, h1 float64 = 346, 238
-	// 定数背景
-	x2, y2 float64 = 152, 821
-	w2, h2 float64 = 138, 94
-	// 分数背景
-	x3, y3 float64 = 596, 694
-	w3, h3 float64 = 518, 218
-	// 边缘
-	x4, y4 float64 = 1114, 692
-	w4, h4 float64 = 6, 222
-	// 真图片
-	x5, y5 int = 194, 682
-	// 排名
-	x6, y6 float64 = 178, 714
-	// 分数线
-	x7, y7 float64 = 724, 824
-	w7, h7 float64 = 326, 2
-)
-var (
-	diff  float64 = 15.90
-	level string  = "AT 15.9"
-	//level
-	x8, y8 float64 = 144, 856
-	level2 float64 = 15.90
-	//level2
-	x9, y9 float64 = 138, 898
-	// rank
-	x10, y10 int    = 600, 770
-	score    string = "1000000"
-	// score
-	x11, y11 float64 = 776, 798
-	name     string  = "Shadow"
-	// name
-	x12, y12 float64 = 594, 740
-	acc      float64 = 100.00
-	// acc
-	x13, y13 float64 = 576, 878
+/*
+type result struct {
+	ID       int64   `db:"id"`
+	Songname string  `db:"songname"` // eg. Shadow
+	Diff     string  `db:"diff"`     // AT
+	Diffnum  float64 `db:"diffnum"`  // 15.9
+	Score    int64   `db:"score"`    // 1000000
+	Acc      float64 `db:"acc"`      // 100.00
+	Rank     string  `db:"rank"`     // phi
+	Rksm     float64 `db:"rksm"`     // 15.90
+}
+*/
 
-	pl, rks, cm string = "Player: ", "RankingScore: ", "ChallengeMode: "
-)
-
-// 角度
-var a float64 = 75
+var Session = "-"
 
 func main() {
-	file, _ := getfile()
-	fmt.Println(file)
-
-	canvas := gg.NewContext(2360, 4780)
-	canvas.SetRGB255(0, 255, 0)
-	canvas.Clear()
-
-	imgs, _ := img.LoadFirstFrame(file+Res+"/back.png", 2048, 1080)
-
-	blured := imgs.Blur(30)
-
-	cutted := cut4img(imgs, a)
-
-	canvas.DrawImage(img.Size(blured.Im, 9064, 4780).Im, -3352, 0)
-
-	draw4(canvas, a, 0, 166, 1324, 410)
-	canvas.SetRGBA255(0, 0, 0, 160)
-	canvas.Fill()
-
-	draw4(canvas, a, 1318, 192, 1200, 350)
-	canvas.SetRGBA255(0, 0, 0, 160)
-	canvas.Fill()
-
-	draw4(canvas, a, 1320, 164, 6, 414)
-	canvas.SetColor(color.White)
-	canvas.Fill()
-
-	logo, _ := gg.LoadPNG(file + Icon)
-	canvas.DrawImage(img.Size(logo, 290, 290).Im, 50, 216)
-
-	font, _ := gg.LoadFontFace(file+Font, 90)
-	canvas.SetFontFace(font)
-	canvas.DrawString("Phigros", 422, 336)
-	canvas.DrawString("RankingScore查询", 422, 462)
-
-	font, _ = gg.LoadFontFace(file+Font, 54)
-	canvas.SetFontFace(font)
-	canvas.DrawString(pl+"yyw", 1434, 300)
-	canvas.DrawString(rks+strconv.FormatFloat(allrks(rksc(acc, diff), rksc(acc, diff)), 'f', 3, 64), 1434, 380)
-
-	chall, _ := gg.LoadPNG(file + Challengemode + "/rainbow.png")
-	canvas.DrawImage(img.Size(chall, 208, 100).Im, 1848, 392)
-
-	canvas.DrawString(cm, 1434, 460)
-	canvas.DrawString("49", 1916, 460)
-
-	rank, _ := img.LoadFirstFrame(file+Rank+"/phi.png", 110, 110)
-
-	var i int64 = 0
-	var xj, yj float64 = 1090, 200
-	for ; i < 20; i++ {
-		if i%2 == 0 {
-			mix(canvas, i, file, cutted, rank)
-
-			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x+xj, x1+xj, x2+xj, x3+xj, x4+xj, x5+int(xj), x6+xj, x7+xj, x8+xj, x9+xj, x10+int(xj), x11+xj, x12+xj, x13+xj
-			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+yj, y1+yj, y2+yj, y3+yj, y4+yj, y5+int(yj), y6+yj, y7+yj, y8+yj, y9+yj, y10+int(yj), y11+yj, y12+yj, y13+yj
-		} else {
-			mix(canvas, i, file, cutted, rank)
-
-			x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x-xj, x1-xj, x2-xj, x3-xj, x4-xj, x5-int(xj), x6-xj, x7-xj, x8-xj, x9-xj, x10-int(xj), x11-xj, x12-xj, x13-xj
-			y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+yj, y1+yj, y2+yj, y3+yj, y4+yj, y5+int(yj), y6+yj, y7+yj, y8+yj, y9+yj, y10+int(yj), y11+yj, y12+yj, y13+yj
-		}
+	err := phigros.LoadDifficult("./difficulty.tsv")
+	if err != nil {
+		panic(err)
 	}
-	x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13 = x-xj, x1-xj, x2-xj, x3-xj, x4-xj, x5-int(xj), x6-xj, x7-xj, x8-xj, x9-xj, x10-int(xj), x11-xj, x12-xj, x13-xj
-	y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13 = y+-(yj*19), y1+-(yj*19), y2+-(yj*19), y3+-(yj*19), y4+-(yj*19), y5-int(yj*19), y6+-(yj*19), y7+-(yj*19), y8+-(yj*19), y9+-(yj*19), y10-int(yj*19), y11+-(yj*19), y12+-(yj*19), y13-(yj*19)
+	j := phigros.UserRecord{}
+	data, _ := phigros.GetDataFormTap(phigros.UserMeUrl, Session) //获取id
+	var um phigros.UserMe
+	_ = json.Unmarshal(data, &um)
+	//ums, _ := json.MarshalIndent(um, "  ", "  ")
+	//fmt.Println(string(ums))
 
-	canvas.SavePNG(file + "/output.png")
+	j.PlayerInfo = phigros.PlayerInfo{
+		Name:      um.Nickname,
+		CreatedAt: um.CreatedAt,
+		UpdatedAt: um.UpdatedAt,
+		Avatar:    um.Avatar,
+	}
+	data, _ = phigros.GetDataFormTap(phigros.SaveUrl, Session) //获取存档链接
+
+	var gs phigros.GameSave
+	_ = json.Unmarshal(data, &gs)
+	f, _ := os.Create("./gamesave.json")
+	f.Write(data)
+
+	//fmt.Println(gs.Results[0].GameFile.URL)
+	ScoreAcc, err := phigros.ParseStatsByUrl(gs.Results[0].GameFile.URL)
+	if err != nil {
+		panic(err)
+	}
+	j.ScoreAcc = phigros.BN(ScoreAcc, 21)
+	//js, _ := json.MarshalIndent(j, "  ", "  ")
+	//fmt.Println(string(js))
+
+	tb := 0.0
+	for _, s := range j.ScoreAcc[:20] {
+		tb += float64(s.Rks)
+	}
+
+	err = renderb19(j.PlayerInfo.Name, strconv.FormatFloat(tb/20, 'f', 2, 64), "Gold", "45", "10001", j.ScoreAcc)
+	if err != nil {
+		panic(err)
+	}
 }
 
-func getfile() (file string, err error) {
-	file, err = filepath.Abs(filepath.Dir(os.Args[0]))
+var filepath = "D:/!!!important/go-phigros-b19/res/"
+
+func renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAcc) error {
+	const w, h = 2360, 4780
+	canvas := gg.NewContext(w, h)
+	//canvas.SetRGB255(0, 255, 0)
+	//canvas.Clear()
+
+	drawfile, err := os.ReadDir(filepath + Illustration)
 	if err != nil {
-		return
+		return err
 	}
-	file = strings.Replace(file, "\\", "/", -1)
-	return
+
+	imgs, err := gg.LoadImage(filepath + Illustration + drawfile[rand.Intn(len(drawfile))].Name())
+	if err != nil {
+		return err
+	}
+
+	blured := imaging.Blur(imgs, 30)
+
+	a := 75.0
+
+	canvas.ScaleAbout(9064.0/float64(blured.Bounds().Dx()), float64(h)/float64(blured.Bounds().Dy()), float64(w)/2, 0)
+
+	canvas.DrawImageAnchored(blured, w/2, 0, 0.5, 0)
+
+	canvas.Identity()
+
+	drawParallelogram(canvas, a, 0, 166, 1324, 410) // h = 396
+	canvas.SetRGBA255(0, 0, 0, 160)
+	canvas.Fill()
+
+	drawParallelogram(canvas, a, 1318, 192, 1200, 350) // h = 338
+	canvas.SetRGBA255(0, 0, 0, 160)
+	canvas.Fill()
+
+	drawParallelogram(canvas, a, 1320, 164, 6, 414)
+	canvas.SetRGBA255(255, 255, 255, 255)
+	canvas.Fill()
+
+	drawParallelogram(canvas, a, 534, 4342, 1312, 342)
+	canvas.SetRGBA255(0, 0, 0, 160)
+	canvas.Fill()
+
+	drawParallelogram(canvas, a, 530, 4340, 6, 346)
+	canvas.SetRGBA255(255, 255, 255, 255)
+	canvas.Fill()
+
+	drawParallelogram(canvas, a, 1842, 4340, 6, 346)
+	canvas.SetRGBA255(255, 255, 255, 255)
+	canvas.Fill()
+
+	font, err := gg.LoadFontFace(filepath+Font, 60)
+	if err != nil {
+		return err
+	}
+	canvas.SetFontFace(font)
+
+	canvas.DrawStringAnchored("Create By ZeroBot-Plugin", w/2, 4342+346/4, 0.5, 0.5)
+	canvas.DrawStringAnchored("UI Designer: eastown", w/2, 4342+346*2/4, 0.5, 0.5)
+	canvas.DrawStringAnchored("*Phigros B19 Picture*", w/2, 4342+346*3/4, 0.5, 0.5)
+
+	logo, err := gg.LoadImage(filepath + Icon)
+	if err != nil {
+		return err
+	}
+	canvas.ScaleAbout(290.0/float64(logo.Bounds().Dx()), 290.0/float64(logo.Bounds().Dy()), 50, 166+396/2)
+	canvas.DrawImageAnchored(logo, 50, 166+396/2, 0, 0.5)
+	canvas.Identity()
+
+	font, err = gg.LoadFontFace(filepath+Font, 90)
+	if err != nil {
+		return err
+	}
+	canvas.SetFontFace(font)
+	canvas.DrawStringAnchored("Phigros", 50+290+50, 166+396/3, 0, 0.5)
+	canvas.DrawStringAnchored("RankingScore查询", 50+290+50, 166+396*2/3, 0, 0.5)
+
+	font, err = gg.LoadFontFace(filepath+Font, 54)
+	if err != nil {
+		return err
+	}
+	canvas.SetFontFace(font)
+	canvas.DrawStringAnchored("Player: "+plname, w-920, 192+338/4, 0, 0.5)
+	canvas.DrawStringAnchored("RankingScore: "+allrks, w-920, 192+338*2/4, 0, 0.5)
+	canvas.DrawStringAnchored("ChallengeMode: ", w-920, 192+338*3/4, 0, 0.5)
+	if chal != "" {
+		chall, err := gg.LoadPNG(filepath + Challengemode + chal + ".png")
+		if err != nil {
+			return err
+		}
+
+		challengemodew, _ := canvas.MeasureString("ChallengeMode: ")
+		canvas.ScaleAbout(208.0/float64(chall.Bounds().Dx()), 100.0/float64(chall.Bounds().Dy()), w-920+challengemodew, 192+338*3/4)
+		canvas.DrawImageAnchored(chall, w-920+int(challengemodew), 192+338*3/4, 0, 0.5)
+		canvas.Identity()
+		canvas.DrawStringAnchored(chalnum, w-920+challengemodew+208/2, 192+338*3/4, 0.5, 0.5)
+	}
+
+	var x, y float64 = 188, 682
+	var i int64
+	var xj, yj float64 = 1090, 160
+
+	err = mix(canvas, i, a, x, y, list[i])
+	if err != nil {
+		return err
+	}
+	i++
+	x += xj
+	y += yj
+	for ; i < 22; i++ {
+		if i%2 == 0 {
+			err := mix(canvas, i, a, x, y, list[i])
+			if err != nil {
+				return err
+			}
+
+			x += xj
+			y += yj
+		} else {
+			err := mix(canvas, i, a, x, y, list[i])
+			if err != nil {
+				return err
+			}
+
+			x -= xj
+			y += yj
+		}
+	}
+	_ = os.Mkdir(filepath+uid, 0644)
+	return canvas.SavePNG(filepath + uid + "/output.png")
 }
 
 // 绘制平行四边形 angle 角度 x, y 坐标 w 宽度 l 斜边长
-func draw4(canvas *gg.Context, angle, x, y, w, l float64) {
+func drawParallelogram(canvas *gg.Context, angle, x, y, w, l float64) (tw, th float64) {
 	// 左上角为原点
 	x0, y0 := x, y
 	// 右上角
 	x1, y1 := x+w, y
 	// 右下角
-	x2 := x1 - (l * (math.Cos(angle * math.Pi / 180.0)))
-	y2 := y1 + (l * (math.Sin(angle * math.Pi / 180.0)))
+	tw, th = l*(math.Cos(angle*math.Pi/180.0)), l*(math.Sin(angle*math.Pi/180.0))
+	x2 := x1 - tw
+	y2 := y1 + th
 	// 左下角
 	x3, y3 := x2-w, y2
 	canvas.NewSubPath()
@@ -162,110 +230,181 @@ func draw4(canvas *gg.Context, angle, x, y, w, l float64) {
 	return
 }
 
-func mix(canvas *gg.Context, i int64, file string, imgs, rank *img.Factory) {
+func mix(canvas *gg.Context, i int64, a, x, y float64, list phigros.ScoreAcc) (err error) {
 	// 画排名背景
-	draw4(canvas, a, x, y, w, h)
+	tw, th := drawParallelogram(canvas, a, x, y, 70, 44) // h = 42
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 
 	// 画排名
-	font, _ := gg.LoadFontFace(file+Font, 30)
+	font, err := gg.LoadFontFace(filepath+Font, 30)
+	if err != nil {
+		return
+	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(0, 0, 0, 255)
-	var fw2 float64
+
 	if i == 0 {
-		fw2, _ = canvas.MeasureString("Phi")
-		canvas.DrawString("Phi", x6+((w-fw2)/2), y6)
+		canvas.DrawStringAnchored("Phi", x-tw/2+70/2, y+th/2, 0.5, 0.5)
 	} else {
-		fw2, _ = canvas.MeasureString("#" + strconv.FormatInt(i, 10))
-		canvas.DrawString("#"+strconv.FormatInt(i, 10), x6+((w-fw2)/2), y6)
+		canvas.DrawStringAnchored("#"+strconv.FormatInt(i, 10), x-tw/2+70/2, y+th/2, 0.5, 0.5)
+
 	}
 
 	// 画分数背景
-	draw4(canvas, a, x3, y3, w3, h3)
+	_, th = drawParallelogram(canvas, a, x+408, y+12, 518, 218) // h = 210
 	canvas.SetRGBA255(0, 0, 0, 160)
 	canvas.Fill()
 
 	// 画rank图标
-	canvas.DrawImage(rank.Im, x10, y10)
+	rank := ""
+	if list.Fc && list.Score != 1000000 {
+		rank = "fc"
+	} else {
+		rank = checkrank(int64(list.Score))
+	}
+	rankim, err := gg.LoadImage(filepath + Rank + rank + ".png")
+	if err != nil {
+		return
+	}
+	canvas.ScaleAbout(110.0/float64(rankim.Bounds().Dx()), 110.0/float64(rankim.Bounds().Dy()), x+412, y+88)
+	canvas.DrawImageAnchored(rankim, int(x)+412, int(y)+88, 0, 0)
+	canvas.Identity()
 
 	// 画分数线
 	canvas.SetRGBA255(255, 255, 255, 255)
-	canvas.DrawRectangle(x7, y7, w7, h7)
+	canvas.DrawRectangle(x+536, y+142, 326, 2)
 	canvas.Fill()
 
 	// 画分数
-	font, _ = gg.LoadFontFace(file+Font, 50)
+	font, err = gg.LoadFontFace(filepath+Font, 50)
+	if err != nil {
+		return
+	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	canvas.DrawString(score, x11, y11)
+	scorestr := strconv.Itoa(list.Score)
+	if len(scorestr) < 7 {
+		for i := len(scorestr); i < 7; i++ {
+			scorestr = "0" + scorestr
+		}
+	}
+	if list.Score != 0 {
+		canvas.DrawStringAnchored(scorestr, x+408+518/2, y+th/2, 0.5, 0.5)
+	} else {
+		canvas.DrawStringAnchored("0000000", x+408+518/2, y+th/2, 0.5, 0.5)
+	}
 
 	// 画acc
-	font, _ = gg.LoadFontFace(file+Font, 44)
+	font, err = gg.LoadFontFace(filepath+Font, 44)
+	if err != nil {
+		return
+	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	fw, _ := canvas.MeasureString(strconv.FormatFloat(acc, 'f', 2, 64) + "%")
-	canvas.DrawString(strconv.FormatFloat(acc, 'f', 2, 64)+"%", x13+((w3-fw)/2), y13)
+	if list.Acc != 0 {
+		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Acc), 'f', 2, 64)+"%", x+408+518/2, y+th*7/8, 0.5, 0.5)
+	} else {
+		canvas.DrawStringAnchored("00.00%", x+408+518/2, y+th*7/8, 0.5, 0.5)
+	}
 
 	// 画曲名
-	font, _ = gg.LoadFontFace(file+Font, 32)
+	font, err = gg.LoadFontFace(filepath+Font, 32)
+	if err != nil {
+		return
+	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	fw1, _ := canvas.MeasureString(name)
-	canvas.DrawString(name, x12+((w3-fw1)/2), y12)
+	if list.SongId != "" {
+		canvas.DrawStringAnchored(strings.Split(list.SongId, ".")[0], x+408+518/2, y+th/4, 0.5, 0.5)
+	} else {
+		canvas.DrawStringAnchored(" ", x+408+326/2, y+th/4, 0.5, 0.5)
+	}
 
 	// 画图片
-	draw4(canvas, a, x1, y1, w1, h1)
+	drawParallelogram(canvas, a, x+68, y, 348, 238)
+	canvas.Clip()
 	canvas.SetRGBA255(0, 0, 255, 0)
-	canvas.DrawImage(img.Size(imgs.Im, 436, 230).Im, x5, y5)
 	canvas.Fill()
 
+	if list.SongId != "" && file.IsExist(filepath+Illustration+strings.Split(list.SongId, ".")[0]+".png") {
+		var imgs image.Image
+		imgs, err = gg.LoadImage(filepath + Illustration + strings.Split(list.SongId, ".")[0] + ".png")
+		if err != nil {
+			return
+		}
+		canvas.ScaleAbout(436/float64(imgs.Bounds().Dx()), 230/float64(imgs.Bounds().Dy()), x, y)
+		canvas.DrawImageAnchored(imgs, int(x), int(y), 0, 0)
+		canvas.Identity()
+	}
+	canvas.ResetClip()
+
 	// 画定数背景
-	draw4(canvas, a, x2, y2, w2, h2)
-	canvas.SetRGBA255(255, 0, 0, 255)
+	tw, th = drawParallelogram(canvas, a, x-36, y+139, 138, 94) // h = 90
+	switch list.Level {
+	case "AT":
+		canvas.SetRGBA255(56, 56, 56, 255)
+	case "IN":
+		canvas.SetRGBA255(190, 45, 35, 255)
+	case "HD":
+		canvas.SetRGBA255(3, 115, 190, 255)
+	case "EZ":
+		canvas.SetRGBA255(15, 180, 145, 255)
+	default:
+		canvas.SetRGBA255(56, 56, 56, 255)
+	}
 	canvas.Fill()
 
 	// 画定数
-	font, _ = gg.LoadFontFace(file+Font, 30)
+	font, err = gg.LoadFontFace(filepath+Font, 30)
+	if err != nil {
+		return
+	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	fw3, _ := canvas.MeasureString(level)
-	canvas.DrawString(level, x8+((w2-fw3)/2), y8)
+	if list.Level != "" {
+		canvas.DrawStringAnchored(list.Level+" "+strconv.FormatFloat(float64(list.Difficulty), 'f', 1, 64), x-36-tw/2+138/2, y+139+th/4, 0.5, 0.5)
+	} else {
+		canvas.DrawStringAnchored("SP ?", x-36-tw/2+138/2, y+139+th/4, 0.5, 0.5)
+	}
 
-	font, _ = gg.LoadFontFace(file+Font, 44)
+	font, err = gg.LoadFontFace(filepath+Font, 44)
+	if err != nil {
+		return
+	}
 	canvas.SetFontFace(font)
 	canvas.SetRGBA255(255, 255, 255, 255)
-	fw4, _ := canvas.MeasureString(strconv.FormatFloat(rksc(acc, diff), 'f', 2, 64))
-	canvas.DrawString(strconv.FormatFloat(rksc(acc, diff), 'f', 2, 64), x9+((w2-fw4)/2), y9)
+	if list.Rks != 0 {
+		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Rks), 'f', 2, 64), x-36-tw/2+138/2, y+139+th*2/3, 0.5, 0.5)
+	} else {
+		canvas.DrawStringAnchored("0.00", x-36-tw/2+138/2, y+139+th*3/4, 0.5, 0.5)
+	}
 
 	// 画边缘
-	draw4(canvas, a, x4, y4, w4, h4)
+	drawParallelogram(canvas, a, x+926, y+10, 6, 222)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
+	return nil
 }
 
-// 将矩形图片裁切为平行四边形 angle 为角度
-func cut4img(imgs *img.Factory, angle float64) *img.Factory {
-	db := imgs.Im.Bounds()
-	dst := imgs
-	maxy := db.Max.Y
-	maxx := db.Max.X
-	sax := (float64(maxy) * (math.Cos(angle * math.Pi / 180.0)))
-	ax := sax
-	for autoadd := 1; autoadd < maxy; autoadd++ {
-		for ; ax > 0; ax-- {
-			dst.Im.Set(int(ax), int(autoadd), color.NRGBA{0, 0, 0, 0})
-			dst.Im.Set(maxx+int(-ax), maxy-autoadd, color.NRGBA{0, 0, 0, 0})
-		}
-		ax = (float64(maxy-autoadd) * (math.Cos(angle * math.Pi / 180.0)))
+func checkrank(score int64) string {
+	if score == 1000000 {
+		return "phi"
 	}
-	return dst
-}
-
-func rksc(accc, diff float64) float64 {
-	return ((100.0*(acc/100.0) - 55.0) / 45.0) * ((100.0*(acc/100.0) - 55.0) / 45.0) * diff
-}
-
-func allrks(phi, sco float64) float64 {
-	return (phi + (sco * 19)) / 20
+	if score >= 960000 {
+		return "v"
+	}
+	if score >= 920000 {
+		return "s"
+	}
+	if score >= 880000 {
+		return "a"
+	}
+	if score >= 820000 {
+		return "b"
+	}
+	if score >= 700000 {
+		return "c"
+	}
+	return "f"
 }
