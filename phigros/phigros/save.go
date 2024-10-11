@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"os"
@@ -65,24 +66,43 @@ func DecoderWithStruct[T PhigrosStruct](in []byte) *T {
 	v := reflect.ValueOf(&ps).Elem()
 	reader := NewBytesReader(in)
 	for i := 0; i < v.NumField(); i++ {
-		switch v.Field(i).Kind() {
-		case reflect.Bool:
-			v.Field(i).SetBool(reader.ReadBool())
-		case reflect.String:
-			v.Field(i).SetString(reader.ReadString())
-		case reflect.Float32:
-			v.Field(i).SetFloat(float64(reader.ReadFloat32()))
-		}
-
+		set(v.Field(i), reader)
 	}
 	return &ps
+}
+
+func set(rv reflect.Value, reader *Bytes) {
+	switch rv.Kind() {
+	case reflect.Bool:
+		rv.SetBool(reader.ReadBool())
+	case reflect.String:
+		rv.SetString(reader.ReadString())
+	case reflect.Float32:
+		rv.SetFloat(float64(reader.ReadFloat32()))
+	case reflect.Int16:
+		rv.SetInt(int64(reader.ReadShort()))
+	case reflect.Uint8:
+		rv.SetUint(uint64(reader.ReadByte1()))
+	case reflect.Array:
+		for i, j := 0, rv.Len(); i < j; i++ {
+			if rv.Index(i).Kind() == reflect.Struct {
+				for ii, k := 0, rv.Index(i).NumField(); i < k; i++ {
+					set(rv.Index(i).Field(ii), reader)
+				}
+			} else {
+				//非结构体数组
+				set(rv.Index(i), reader)
+			}
+		}
+	default:
+	}
 }
 
 func DecoderGameRecord(in []byte) []ScoreAcc {
 	records := []ScoreAcc{}
 	reader := NewBytesReader(in)
 
-	for i, s := byte(0), reader.ReadShort(); i < s; i++ {
+	for i, s := byte(0), reader.ReadVarShort(); i < s; i++ {
 		t := reader.ReadString()
 		songId := t[:len(t)-2]
 		record := reader.ReadRecord(songId)
@@ -164,4 +184,23 @@ func ParseStatsByUrl(url string) ([]ScoreAcc, error) {
 		return nil, errors.New("版本号不正确，可能协议已更新。")
 	}
 	return DecoderGameRecord(d[1:]), nil
+}
+
+func ProcessSummary(sum string) (s *Summary) {
+	if sum == "" {
+		return nil
+	}
+	b, err := base64.RawStdEncoding.DecodeString(sum)
+	if err != nil {
+		return nil
+	}
+	s = DecoderWithStruct[Summary](b)
+	// for range 4 {
+	// 	s.ScoreAcc = append(s.ScoreAcc, SummaryScoreAcc{
+	// 		Cleared:   reader.ReadShort(),
+	// 		FullCombo: reader.ReadShort(),
+	// 		Phi:       reader.ReadShort(),
+	// 	})
+	// }
+	return
 }

@@ -3,7 +3,7 @@ package phigros
 import "time"
 
 type PhigrosStruct interface {
-	Settings | User
+	Settings | User | Summary
 }
 type Settings struct {
 	ChordSupport      bool    `json:"chordSupport"`
@@ -111,13 +111,28 @@ type PlayerInfo struct {
 	Avatar    string    `json:"avatar"`
 }
 type UserRecord struct {
-	Session    string     `json:"session"`
-	PlayerInfo PlayerInfo `json:"playerInfo"`
-	ScoreAcc   []ScoreAcc `json:"scoreAcc"`
+	Session    string      `json:"session"`
+	PlayerInfo *PlayerInfo `json:"playerInfo"`
+	ScoreAcc   []ScoreAcc  `json:"scoreAcc"`
+	Summary    *Summary    `json:"summary"`
 }
 
 type RespCode struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
+}
+
+type Summary struct {
+	SaveVersion       byte
+	ChallengeModeRank int16
+	Rks               float32
+	GameVersion       byte
+	Avatar            string
+	ScoreAcc          [4]SummaryScoreAcc
+}
+type SummaryScoreAcc struct {
+	Cleared   int16
+	FullCombo int16
+	Phi       int16
 }

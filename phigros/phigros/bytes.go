@@ -17,7 +17,7 @@ func (b *Bytes) Alignment() {
 	}
 }
 
-func (b *Bytes) ReadShort() byte {
+func (b *Bytes) ReadVarShort() byte {
 	b.Alignment()
 	num := b.Data[b.ptr]
 	if num < 128 {
@@ -44,21 +44,21 @@ func (b *Bytes) ReadNext() {
 	b.ptr++
 }
 
-func (b *Bytes) ReadByte() byte {
+func (b *Bytes) ReadByte1() byte {
 	b.Alignment()
 	b.ptr++
-	return b.Data[b.ptr]
+	return b.Data[b.ptr-1]
 }
 
-func (b *Bytes) GetShort() byte {
+func (b *Bytes) ReadShort() int16 {
 	b.Alignment()
 	b.ptr += 2
-	return (b.Data[b.ptr-1] << 8) ^ (b.Data[b.ptr-2] & 0xff)
+	return int16(b.Data[b.ptr-2]) + int16(b.Data[b.ptr-1])<<8
 }
 
 func (b *Bytes) ReadString() string {
 	b.Alignment()
-	length := b.ReadShort()
+	length := b.ReadVarShort()
 	b.ptr += int(length)
 	return BytesToString(b.Data[b.ptr-int(length) : b.ptr])
 }
