@@ -78,7 +78,7 @@ func main() {
 	}
 
 	now := time.Now()
-	err = renderb19(j.PlayerInfo.Name, strconv.FormatFloat(float64(j.Summary.Rks), 'f', 6, 64), challengemoderank[(j.Summary.ChallengeModeRank-(j.Summary.ChallengeModeRank%100))/100], strconv.Itoa(int(j.Summary.ChallengeModeRank%100)), "10001", j.ScoreAcc)
+	err = Renderb19(j.PlayerInfo.Name, strconv.FormatFloat(float64(j.Summary.Rks), 'f', 6, 64), challengemoderank[(j.Summary.ChallengeModeRank-(j.Summary.ChallengeModeRank%100))/100], strconv.Itoa(int(j.Summary.ChallengeModeRank%100)), "10001", j.ScoreAcc)
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +87,8 @@ func main() {
 
 var filepath = "D:/!!!important/go-phigros-b19/res/"
 
-func renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAcc) (err error) {
+// Renderb19 ...
+func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAcc) (err error) {
 	const w, h = 2360, 4780
 	canvas := gg.NewContext(w, h)
 	//canvas.SetRGB255(0, 255, 0)
@@ -227,7 +228,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 		} else {
 			canvas.DrawStringAnchored("#"+strconv.Itoa(i), x+70/2-tw/2, spac+y+th/2, 0.5, 0.5)
 		}
-		x -= xspac
+		x = 188
 	}
 
 	// 画分数
@@ -255,7 +256,7 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 		} else {
 			canvas.DrawStringAnchored("0000000", x+408+518/2, y+th/2+spac, 0.5, 0.5)
 		}
-		x -= xspac
+		x = 188
 	}
 
 	// 画acc
@@ -341,33 +342,6 @@ func renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 		}
 		x = 188
 	}
-	/*err = mix(canvas, i, a, x, y, list[i])
-	if err != nil {
-		return err
-	}
-	i++
-	x += xj
-	y += yj
-	for ; i < 22; i++ {
-		if i%2 == 0 {
-			err := mix(canvas, i, a, x, y, list[i])
-			if err != nil {
-				return err
-			}
-
-			x += xj
-			y += yj
-		} else {
-			err := mix(canvas, i, a, x, y, list[i])
-			if err != nil {
-				return err
-			}
-
-			x -= xj
-			y += yj
-		}
-	}
-	*/
 	return canvas.SavePNG(filepath + uid + "/output.png")
 }
 
@@ -473,96 +447,6 @@ func drawcardback(w, h, i int, a, x, y float64, list phigros.ScoreAcc) (img imag
 	img = canvas.Image()
 	return
 }
-
-/*
-func drawcardtext(canvas *gg.Context) {
-	canvas = gg.NewContext(canvas.W(), canvas.H())
-
-	// 画排名
-	font, err := gg.LoadFontFace(filepath+Font, 30)
-	if err != nil {
-		return
-	}
-	canvas.SetFontFace(font)
-	canvas.SetRGBA255(0, 0, 0, 255)
-
-	if i == 0 {
-		canvas.DrawStringAnchored("Phi", x+70/2-tw/2, y+th/2, 0.5, 0.5)
-	} else {
-		canvas.DrawStringAnchored("#"+strconv.Itoa(i), x+70/2-tw/2, y+th/2, 0.5, 0.5)
-
-	}
-	// 画分数
-	font, err = gg.LoadFontFace(filepath+Font, 50)
-	if err != nil {
-		return
-	}
-	canvas.SetFontFace(font)
-	canvas.SetRGBA255(255, 255, 255, 255)
-	scorestr := strconv.Itoa(list.Score)
-	if len(scorestr) < 7 {
-		for i := len(scorestr); i < 7; i++ {
-			scorestr = "0" + scorestr
-		}
-	}
-	if list.Score != 0 {
-		canvas.DrawStringAnchored(scorestr, x+408+518/2, y+th/2, 0.5, 0.5)
-	} else {
-		canvas.DrawStringAnchored("0000000", x+408+518/2, y+th/2, 0.5, 0.5)
-	}
-
-	// 画acc
-	font, err = gg.LoadFontFace(filepath+Font, 44)
-	if err != nil {
-		return
-	}
-	canvas.SetFontFace(font)
-	canvas.SetRGBA255(255, 255, 255, 255)
-	if list.Acc != 0 {
-		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Acc), 'f', 2, 64)+"%", x+408+518/2, y+th*7/8, 0.5, 0.5)
-	} else {
-		canvas.DrawStringAnchored("00.00%", x+408+518/2, y+th*7/8, 0.5, 0.5)
-	}
-
-	// 画曲名
-	font, err = gg.LoadFontFace(filepath+Font, 32)
-	if err != nil {
-		return
-	}
-	canvas.SetFontFace(font)
-	canvas.SetRGBA255(255, 255, 255, 255)
-	if list.SongId != "" {
-		canvas.DrawStringAnchored(strings.Split(list.SongId, ".")[0], x+408+518/2, y+th/4, 0.5, 0.5)
-	} else {
-		canvas.DrawStringAnchored(" ", x+408+326/2, y+th/4, 0.5, 0.5)
-	}
-
-	// 画定数
-	font, err = gg.LoadFontFace(filepath+Font, 30)
-	if err != nil {
-		return
-	}
-	canvas.SetFontFace(font)
-	canvas.SetRGBA255(255, 255, 255, 255)
-	if list.Level != "" {
-		canvas.DrawStringAnchored(list.Level+" "+strconv.FormatFloat(float64(list.Difficulty), 'f', 1, 64), x-36-tw/2+138/2, y+139+th/4, 0.5, 0.5)
-	} else {
-		canvas.DrawStringAnchored("SP ?", x-36-tw/2+138/2, y+139+th/4, 0.5, 0.5)
-	}
-
-	font, err = gg.LoadFontFace(filepath+Font, 44)
-	if err != nil {
-		return
-	}
-	canvas.SetFontFace(font)
-	canvas.SetRGBA255(255, 255, 255, 255)
-	if list.Rks != 0 {
-		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Rks), 'f', 2, 64), x-36-tw/2+138/2, y+139+th*2/3, 0.5, 0.5)
-	} else {
-		canvas.DrawStringAnchored("0.00", x-36-tw/2+138/2, y+139+th*3/4, 0.5, 0.5)
-	}
-}
-*/
 
 func checkrank(score int64) string {
 	if score == 1000000 {
