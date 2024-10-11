@@ -308,7 +308,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].Acc != 0 {
 			canvas.DrawStringAnchored(strconv.FormatFloat(float64(list[i].Acc), 'f', 2, 64)+"%", x+408+518/2, y+th*7/8+spac, 0.5, 0.5)
 		} else {
@@ -329,7 +328,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].SongId != "" {
 			canvas.DrawStringAnchored(strings.Split(list[i].SongId, ".")[0], x+408+518/2, y+th/4+spac, 0.5, 0.5)
 		} else {
@@ -351,7 +349,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].Level != "" {
 			canvas.DrawStringAnchored(list[i].Level+" "+strconv.FormatFloat(float64(list[i].Difficulty), 'f', 1, 64), x-36-tw/2+138/2, y+139+th/4+spac, 0.5, 0.5)
 		} else {
@@ -371,7 +368,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].Rks != 0 {
 			canvas.DrawStringAnchored(strconv.FormatFloat(float64(list[i].Rks), 'f', 2, 64), x-36-tw/2+138/2, y+139+th*2/3+spac, 0.5, 0.5)
 		} else {
@@ -453,8 +449,6 @@ func drawcardback(w, h, i int, a, x, y float64, list phigros.ScoreAcc) (img imag
 	// 画图片
 	drawParallelogram(canvas, a, x+68, y, 348, 238)
 	canvas.Clip()
-	canvas.SetRGBA255(0, 0, 255, 0)
-	canvas.Fill()
 
 	_, err = os.Stat(filepath + Illustration + list.SongId + ".0.png")
 	if list.SongId != "" && (err == nil || os.IsExist(err)) {
