@@ -1,12 +1,12 @@
-module test
+module github.com/Jiang-Red/go-phigros-b19
 
 go 1.20
 
 require (
 	github.com/FloatTech/floatbox v0.0.0-20240505082030-226ec6713e14
-	github.com/FloatTech/gg v1.1.0
+	github.com/FloatTech/gg v1.1.3
 	github.com/disintegration/imaging v1.6.2
-	github.com/lianhong2758/PhigrosAPI v0.0.0-20241005092045-e0cfafd58848
+	github.com/lianhong2758/PhigrosAPI v0.1.2
 )
 
 require (
@@ -22,8 +22,8 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
-	golang.org/x/image v0.3.0 // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/image v0.15.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 )

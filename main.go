@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"test/phigros/phigros"
+	"github.com/Jiang-Red/go-phigros-b19/phigros/phigros"
 
 	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
