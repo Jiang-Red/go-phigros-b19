@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"io"
 	"math"
 	"math/rand"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -14,7 +16,6 @@ import (
 
 	"github.com/Jiang-Red/go-phigros-b19/phigros/phigros"
 
-	"github.com/FloatTech/floatbox/file"
 	"github.com/FloatTech/gg"
 	"github.com/disintegration/imaging"
 )
@@ -70,8 +71,22 @@ func main() {
 	j.Summary = phigros.ProcessSummary(gs.Results[0].Summary)
 	//js, _ := json.MarshalIndent(j, "  ", "  ")
 	//fmt.Println(string(js))
-	if file.IsNotExist(filepath + "/10001/avatar.png") {
-		err = file.DownloadTo(j.PlayerInfo.Avatar, filepath+"/10001/avatar.png")
+	_, err = os.Stat(filepath + "/10001/avatar.png")
+	if os.IsNotExist(err) {
+		var response *http.Response
+
+		response, err = http.Get(j.PlayerInfo.Avatar)
+
+		if err != nil {
+			panic(err)
+		}
+		data, err = io.ReadAll(response.Body)
+		if err != nil {
+			panic(err)
+		}
+		defer response.Body.Close()
+
+		err = os.WriteFile(filepath+"/10001/avatar.png", data, 0644)
 		if err != nil {
 			panic(err)
 		}
@@ -411,8 +426,8 @@ func drawcardback(w, h, i int, a, x, y float64, list phigros.ScoreAcc) (img imag
 	canvas.Clip()
 	canvas.SetRGBA255(0, 0, 255, 0)
 	canvas.Fill()
-
-	if list.SongId != "" && file.IsExist(filepath+Illustration+list.SongId+".0.png") {
+	_, err = os.Stat(filepath + Illustration + list.SongId + ".0.png")
+	if list.SongId != "" && os.IsExist(err) {
 		var imgs image.Image
 		imgs, err = gg.LoadImage(filepath + Illustration + list.SongId + ".0.png")
 		if err != nil {

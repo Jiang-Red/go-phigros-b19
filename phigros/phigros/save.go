@@ -86,7 +86,7 @@ func set(rv reflect.Value, reader *Bytes) {
 	case reflect.Array:
 		for i, j := 0, rv.Len(); i < j; i++ {
 			if rv.Index(i).Kind() == reflect.Struct {
-				for ii, k := 0, rv.Index(i).NumField(); i < k; i++ {
+				for ii, k := 0, rv.Index(i).NumField(); ii < k; ii++ {
 					set(rv.Index(i).Field(ii), reader)
 				}
 			} else {
