@@ -37,6 +37,8 @@ var Session = "nkyjch88ydrg4js83bea9jyiw"
 
 var challengemoderank = []string{"white", "green", "blue", "red", "gold", "rainbow"}
 
+var fontsd, _ = os.ReadFile(filepath + Font)
+
 func main() {
 	err := phigros.LoadDifficult("./difficulty.tsv")
 	if err != nil {
@@ -71,7 +73,7 @@ func main() {
 	j.Summary = phigros.ProcessSummary(gs.Results[0].Summary)
 	//js, _ := json.MarshalIndent(j, "  ", "  ")
 	//fmt.Println(string(js))
-	_, err = os.Stat(filepath + "/10001/avatar.png")
+	_, err = os.Stat(filepath + "10001/avatar.png")
 	if os.IsNotExist(err) {
 		var response *http.Response
 
@@ -86,7 +88,7 @@ func main() {
 		}
 		defer response.Body.Close()
 
-		err = os.WriteFile(filepath+"/10001/avatar.png", data, 0644)
+		err = os.WriteFile(filepath+"10001/avatar.png", data, 0644)
 		if err != nil {
 			panic(err)
 		}
@@ -100,7 +102,7 @@ func main() {
 	fmt.Println(time.Since(now).String())
 }
 
-var filepath = "D:/!!!important/go-phigros-b19/res/"
+const filepath = "D:/!!!important/go-phigros-b19/res/"
 
 // Renderb19 ...
 func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAcc) (err error) {
@@ -168,17 +170,16 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 
-	font, err := gg.LoadFontFace(filepath+Font, 60)
+	err = canvas.ParseFontFace(fontsd, 60)
 	if err != nil {
 		return
 	}
-	canvas.SetFontFace(font)
 
 	canvas.DrawStringAnchored("Create By ZeroBot-Plugin", w/2-tw/2, 4342+th/4, 0.5, 0.5)
 	canvas.DrawStringAnchored("UI Designer: eastown", w/2-tw/2, 4342+th*2/4, 0.5, 0.5)
 	canvas.DrawStringAnchored("*Phigros B19 Picture*", w/2-tw/2, 4342+th*3/4, 0.5, 0.5)
 
-	logo, err := gg.LoadImage(filepath + "/" + uid + "/avatar.png")
+	logo, err := gg.LoadImage(filepath + uid + "/avatar.png")
 	if err != nil {
 		return
 	}
@@ -189,19 +190,19 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	canvas.Identity()
 	canvas.ResetClip()
 
-	font, err = gg.LoadFontFace(filepath+Font, 90)
+	err = canvas.ParseFontFace(fontsd, 90)
 	if err != nil {
 		return
 	}
-	canvas.SetFontFace(font)
+
 	canvas.DrawStringAnchored("Phigros", 50+290+50, 166+396/3, 0, 0.5)
 	canvas.DrawStringAnchored("RankingScore查询", 50+290+50, 166+396*2/3, 0, 0.5)
 
-	font, err = gg.LoadFontFace(filepath+Font, 54)
+	err = canvas.ParseFontFace(fontsd, 54)
 	if err != nil {
 		return
 	}
-	canvas.SetFontFace(font)
+
 	canvas.DrawStringAnchored("Player: "+plname, w-920, 192+338/4, 0, 0.5)
 	canvas.DrawStringAnchored("RankingScore: "+allrks, w-920, 192+338*2/4, 0, 0.5)
 	canvas.DrawStringAnchored("ChallengeMode: ", w-920, 192+338*3/4, 0, 0.5)
@@ -222,20 +223,19 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	for i := 0; i < len(cardimgs); i++ {
 		canvas.DrawImage(cardimgs[i], 0, 0)
 	}
-
 	// 画排名
-	font, err = gg.LoadFontFace(filepath+Font, 30)
+
+	err = canvas.ParseFontFace(fontsd, 30)
 	if err != nil {
 		return
 	}
+
 	tw, th = cal(a, 44)
 	for i := 0; i < len(list); i++ {
 		spac := float64(yspac * i)
 		if (i+1)%2 == 0 {
 			x += xspac
 		}
-
-		canvas.SetFontFace(font)
 		canvas.SetRGBA255(0, 0, 0, 255)
 
 		if i == 0 {
@@ -247,7 +247,7 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	}
 
 	// 画分数
-	font, err = gg.LoadFontFace(filepath+Font, 50)
+	err = canvas.ParseFontFace(fontsd, 50)
 	if err != nil {
 		return
 	}
@@ -258,7 +258,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetFontFace(font)
 		canvas.SetRGBA255(255, 255, 255, 255)
 		scorestr := strconv.Itoa(list[i].Score)
 		if len(scorestr) < 7 {
@@ -275,7 +274,7 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	}
 
 	// 画acc
-	font, err = gg.LoadFontFace(filepath+Font, 44)
+	err = canvas.ParseFontFace(fontsd, 44)
 	if err != nil {
 		return
 	}
@@ -285,7 +284,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetFontFace(font)
 		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].Acc != 0 {
 			canvas.DrawStringAnchored(strconv.FormatFloat(float64(list[i].Acc), 'f', 2, 64)+"%", x+408+518/2, y+th*7/8+spac, 0.5, 0.5)
@@ -296,7 +294,7 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	}
 
 	// 画曲名
-	font, err = gg.LoadFontFace(filepath+Font, 32)
+	err = canvas.ParseFontFace(fontsd, 32)
 	if err != nil {
 		return
 	}
@@ -306,7 +304,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetFontFace(font)
 		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].SongId != "" {
 			canvas.DrawStringAnchored(strings.Split(list[i].SongId, ".")[0], x+408+518/2, y+th/4+spac, 0.5, 0.5)
@@ -317,7 +314,7 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 	}
 
 	// 画定数
-	font, err = gg.LoadFontFace(filepath+Font, 30)
+	err = canvas.ParseFontFace(fontsd, 30)
 	if err != nil {
 		return
 	}
@@ -328,7 +325,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetFontFace(font)
 		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].Level != "" {
 			canvas.DrawStringAnchored(list[i].Level+" "+strconv.FormatFloat(float64(list[i].Difficulty), 'f', 1, 64), x-36-tw/2+138/2, y+139+th/4+spac, 0.5, 0.5)
@@ -338,7 +334,7 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 		x = 188
 	}
 
-	font, err = gg.LoadFontFace(filepath+Font, 44)
+	err = canvas.ParseFontFace(fontsd, 44)
 	if err != nil {
 		return
 	}
@@ -348,7 +344,6 @@ func Renderb19(plname, allrks, chal, chalnum, uid string, list []phigros.ScoreAc
 			x += xspac
 		}
 
-		canvas.SetFontFace(font)
 		canvas.SetRGBA255(255, 255, 255, 255)
 		if list[i].Rks != 0 {
 			canvas.DrawStringAnchored(strconv.FormatFloat(float64(list[i].Rks), 'f', 2, 64), x-36-tw/2+138/2, y+139+th*2/3+spac, 0.5, 0.5)
@@ -427,7 +422,7 @@ func drawcardback(w, h, i int, a, x, y float64, list phigros.ScoreAcc) (img imag
 	canvas.SetRGBA255(0, 0, 255, 0)
 	canvas.Fill()
 	_, err = os.Stat(filepath + Illustration + list.SongId + ".0.png")
-	if list.SongId != "" && os.IsExist(err) {
+	if list.SongId != "" && (err == nil || os.IsExist(err)) {
 		var imgs image.Image
 		imgs, err = gg.LoadImage(filepath + Illustration + list.SongId + ".0.png")
 		if err != nil {
