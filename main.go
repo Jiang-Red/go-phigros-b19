@@ -98,7 +98,7 @@ func main() {
 	}
 
 	now = time.Now()
-	DrawB19(0.5, j, strconv.FormatFloat(float64(j.Summary.Rks), 'f', 6, 64), challengemoderank[(j.Summary.ChallengeModeRank-(j.Summary.ChallengeModeRank%100))/100], strconv.Itoa(int(j.Summary.ChallengeModeRank%100)), "10001")
+	DrawB19(1, j, strconv.FormatFloat(float64(j.Summary.Rks), 'f', 6, 64), challengemoderank[(j.Summary.ChallengeModeRank-(j.Summary.ChallengeModeRank%100))/100], strconv.Itoa(int(j.Summary.ChallengeModeRank%100)), "10001")
 	if err != nil {
 		panic(err)
 	}
