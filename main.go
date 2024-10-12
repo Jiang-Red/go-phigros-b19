@@ -130,7 +130,7 @@ func DrawB19(accuracy float64, j phigros.UserRecord, allrks, chal, chalnum, uid 
 	imgs = imaging.Blur(imgs, 30)
 	//速度提升0.7s
 	imgs = resize.Resize(0, uint(h), imgs, resize.Bilinear) //改比例
-	canvas.DrawImage(imgs, -(imgs.Bounds().Dx()-w)/2, 0)
+	canvas.DrawImageAnchored(imgs, w/2, 0, 0.5, 0)
 	//其余的平行四边形底色
 
 	drawParallelogram(canvas, a, 0, 166*accuracy, 1324*accuracy, 410*accuracy) // h = 396
@@ -149,11 +149,11 @@ func DrawB19(accuracy float64, j phigros.UserRecord, allrks, chal, chalnum, uid 
 	canvas.SetRGBA255(0, 0, 0, 160)
 	canvas.Fill()
 
-	drawParallelogram(canvas, a, 530, 4340, 6, 346)
+	drawParallelogram(canvas, a, 530*accuracy, 4340*accuracy, 6*accuracy, 346*accuracy)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 
-	drawParallelogram(canvas, a, 1842, 4340, 6, 346)
+	drawParallelogram(canvas, a, 1842*accuracy, 4340*accuracy, 6*accuracy, 346*accuracy)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 	//version
@@ -165,19 +165,19 @@ func DrawB19(accuracy float64, j phigros.UserRecord, allrks, chal, chalnum, uid 
 	//头图文字
 	_ = canvas.ParseFontFace(fontsd, 90*accuracy)
 	canvas.DrawStringAnchored("Phigros", (50+290+50)*accuracy, (166+396/3)*accuracy, 0, 0.5)
-	canvas.DrawStringAnchored("RankingScore查询", (50 + 290 + 50), (166+396*2/3)*accuracy, 0, 0.5)
+	canvas.DrawStringAnchored("RankingScore查询", (50+290+50)*accuracy, (166+396*2/3)*accuracy, 0, 0.5)
 
 	_ = canvas.ParseFontFace(fontsd, 54*accuracy)
 	canvas.DrawStringAnchored("Player: "+j.PlayerInfo.Name, float64(w)-920*accuracy, (192+338/4)*accuracy, 0, 0.5)
-	canvas.DrawStringAnchored("RankingScore: "+allrks, float64(w)-920, (192+338*2/4)*accuracy, 0, 0.5)
-	canvas.DrawStringAnchored("ChallengeMode: ", float64(w)-920, (192+338*3/4)*accuracy, 0, 0.5)
+	canvas.DrawStringAnchored("RankingScore: "+allrks, float64(w)-920*accuracy, (192+338*2/4)*accuracy, 0, 0.5)
+	canvas.DrawStringAnchored("ChallengeMode: ", float64(w)-920*accuracy, (192+338*3/4)*accuracy, 0, 0.5)
 	if chal != "" {
 		chall, err := gg.LoadPNG(filepath + Challengemode + chal + ".png")
 		if err != nil {
 			return err
 		}
 		challengemodew, _ := canvas.MeasureString("ChallengeMode: ")
-		chall = resize.Resize(208, 100, chall, resize.Bilinear)
+		chall = resize.Resize(uint(208*accuracy), uint(100*accuracy), chall, resize.Bilinear)
 		canvas.DrawImageAnchored(chall, w+int(-920*accuracy+challengemodew), int((192+338*3/4)*accuracy), 0, 0.5)
 
 		canvas.DrawStringAnchored(chalnum, float64(w)-920*accuracy+challengemodew+(208/2)*accuracy, (192+338*3/4)*accuracy, 0.5, 0.5)
@@ -200,11 +200,11 @@ func DrawB19(accuracy float64, j phigros.UserRecord, allrks, chal, chalnum, uid 
 	for i := 0; i < len(j.ScoreAcc); i++ {
 		go func(i int) {
 			defer wg.Done()
-			cardimg, err := drawcardback(accuracy, i, canvas.W()-int(x), a, j.ScoreAcc[i])
+			cardimg, err := drawcardback(accuracy, i, canvas.W(), a, j.ScoreAcc[i])
 			if err != nil {
 				return
 			}
-			canvas.DrawImage(cardimg, int(x+1090*float64(i%2)*accuracy), int(float64(160*i)*accuracy+y))
+			canvas.DrawImage(cardimg, int(x+float64(1090*(i%2))*accuracy-100*accuracy), int(float64(160*i)*accuracy+y))
 		}(i)
 	}
 	wg.Wait()
@@ -240,14 +240,14 @@ func cal(angle, l float64) (tw, th float64) {
 func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) (img image.Image, err error) {
 	//xspac, yspac := 1090.0*accuracy, 160*accuracy
 	iw := float64(100)
-	canvas := gg.NewContext(w/2, int(220*accuracy))
+	canvas := gg.NewContext(w/2, int(230*accuracy))
 	// 画排名背景
 	drawParallelogram(canvas, a, iw*accuracy, 0, 70*accuracy, 44*accuracy) // h = 42
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 
 	// 画分数背景
-	drawParallelogram(canvas, a, (iw+408)*accuracy, 12*accuracy, 518*accuracy, 218*accuracy) // h = 210
+	drawParallelogram(canvas, a, (iw+408)*accuracy, 10*accuracy, 518*accuracy, 218*accuracy) // h = 210
 	canvas.SetRGBA255(0, 0, 0, 160)
 	canvas.Fill()
 
@@ -271,7 +271,7 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	canvas.Fill()
 
 	// 画图片
-	drawParallelogram(canvas, a, (68+iw)*accuracy, 0, 348, 238)
+	drawParallelogram(canvas, a, (70+iw)*accuracy, 0, 348*accuracy, 238*accuracy)
 	canvas.Clip()
 
 	_, err = os.Stat(filepath + Illustration + list.SongId + ".0.png")
@@ -282,12 +282,12 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 			return
 		}
 		imgs = resize.Resize(uint(436*accuracy), uint(230*accuracy), imgs, resize.Bilinear)
-		canvas.DrawImage(imgs, int(iw), 0)
+		canvas.DrawImage(imgs, int(iw*accuracy), 0)
 	}
 	canvas.ResetClip()
 
 	// 画定数背景
-	drawParallelogram(canvas, a, 36*accuracy, 139*accuracy, 138*accuracy, 94*accuracy) // h = 90
+	drawParallelogram(canvas, a, 138/2*accuracy, 140*accuracy, 138*accuracy, 94*accuracy) // h = 90
 	switch list.Level {
 	case "AT":
 		canvas.SetRGBA255(56, 56, 56, 255)
@@ -303,7 +303,7 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	canvas.Fill()
 
 	// 画边缘
-	drawParallelogram(canvas, a, 926*accuracy, 10*accuracy, 6*accuracy, 222*accuracy)
+	drawParallelogram(canvas, a, (iw+926)*accuracy, 8*accuracy, 6*accuracy, 222*accuracy)
 	canvas.SetRGBA255(255, 255, 255, 255)
 	canvas.Fill()
 	//画文字
@@ -315,9 +315,9 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	canvas.SetRGBA255(0, 0, 0, 255)
 
 	if i == 0 {
-		canvas.DrawStringAnchored("Phi", (iw+(70/2)-tw/2)*accuracy, 0+th/2, 0.5, 0.5)
+		canvas.DrawStringAnchored("Phi", (iw+(70/2)-tw/2)*accuracy, (0+th/2)*accuracy, 0.5, 0.5)
 	} else {
-		canvas.DrawStringAnchored("#"+strconv.Itoa(i), (iw+70/2-tw/2)*accuracy, 0+th/2, 0.5, 0.5)
+		canvas.DrawStringAnchored("#"+strconv.Itoa(i), (iw+70/2-tw/2)*accuracy, (0+th/2)*accuracy, 0.5, 0.5)
 	}
 
 	// 画分数
@@ -341,32 +341,32 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	// 画acc
 	_ = canvas.ParseFontFace(fontsd, 44*accuracy)
 	if list.Acc != 0 {
-		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Acc), 'f', 2, 64)+"%",  (iw+408+518/2)*accuracy, th*7/8*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Acc), 'f', 2, 64)+"%", (iw+408+518/2)*accuracy, th*7/8*accuracy, 0.5, 0.5)
 	} else {
-		canvas.DrawStringAnchored("00.00%",  (iw+408+518/2)*accuracy, th*7/8*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored("00.00%", (iw+408+518/2)*accuracy, th*7/8*accuracy, 0.5, 0.5)
 	}
 
 	// 画曲名
 	_ = canvas.ParseFontFace(fontsd, 32*accuracy)
 	if list.SongId != "" {
-		canvas.DrawStringAnchored(strings.Split(list.SongId, ".")[0],  (iw+408+518/2)*accuracy, th/4*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored(strings.Split(list.SongId, ".")[0], (iw+408+518/2)*accuracy, th/4*accuracy, 0.5, 0.5)
 	} else {
-		canvas.DrawStringAnchored(" ",  (iw+408+326/2)*accuracy, th/4*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored(" ", (iw+408+326/2)*accuracy, th/4*accuracy, 0.5, 0.5)
 	}
 	// 画定数
 	_ = canvas.ParseFontFace(fontsd, 30*accuracy)
 	tw, th = cal(a, 94)
 	if list.Level != "" {
-		canvas.DrawStringAnchored(list.Level+" "+strconv.FormatFloat(float64(list.Difficulty), 'f', 1, 64),  (iw-36-tw/2+50)*accuracy, (139+th/4)*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored(list.Level+" "+strconv.FormatFloat(float64(list.Difficulty), 'f', 1, 64), (138/2+tw/2+50)*accuracy, (140+th/4)*accuracy, 0.5, 0.5)
 	} else {
-		canvas.DrawStringAnchored("SP ?",  (iw-36-tw/2+50)*accuracy, (139+th/4)*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored("SP ?", (138/2+tw/2+50)*accuracy, (140+th/4)*accuracy, 0.5, 0.5)
 	}
 
 	_ = canvas.ParseFontFace(fontsd, 44*accuracy)
 	if list.Rks != 0 {
-		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Rks), 'f', 2, 64),  (iw-36-tw/2+40)*accuracy, (139+th*2/3)*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored(strconv.FormatFloat(float64(list.Rks), 'f', 2, 64), (138/2+tw/2+40)*accuracy, (140+th*2/3)*accuracy, 0.5, 0.5)
 	} else {
-		canvas.DrawStringAnchored("0.00",  (iw-36-tw/2+40)*accuracy, (139+th*2/3)*accuracy, 0.5, 0.5)
+		canvas.DrawStringAnchored("0.00", (138/2+tw/2+40)*accuracy, (140+th*2/3)*accuracy, 0.5, 0.5)
 	}
 	img = canvas.Image()
 	return
