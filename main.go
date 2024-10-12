@@ -184,7 +184,7 @@ func DrawB19(accuracy float64, j phigros.UserRecord, allrks, chal, chalnum, uid 
 	}
 	wg.Add(len(j.ScoreAcc) + 1)
 	//头图
-	func() {
+	go func() {
 		defer wg.Done()
 		logo, err := gg.LoadImage(filepath + uid + "/avatar.png")
 		if err != nil {
@@ -232,7 +232,7 @@ func drawParallelogram(canvas *gg.Context, angle, x, y, w, l float64) (tw, th fl
 	return
 }
 
-func cal(angle, l float64) (tw, th float64) {
+func calc(angle, l float64) (tw, th float64) {
 	return l * (math.Cos(angle * math.Pi / 180.0)), l * (math.Sin(angle * math.Pi / 180.0))
 }
 
@@ -311,7 +311,7 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	// 画排名
 
 	_ = canvas.ParseFontFace(fontsd, 30*accuracy)
-	tw, th := cal(a, 44)
+	tw, th := calc(a, 44)
 	canvas.SetRGBA255(0, 0, 0, 255)
 
 	if i == 0 {
@@ -323,7 +323,7 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	// 画分数
 	_ = canvas.ParseFontFace(fontsd, 50*accuracy)
 
-	_, th = cal(a, 218)
+	_, th = calc(a, 218)
 
 	canvas.SetRGBA255(255, 255, 255, 255)
 	scorestr := strconv.Itoa(list.Score)
@@ -355,7 +355,7 @@ func drawcardback(accuracy float64, i, w int, a float64, list phigros.ScoreAcc) 
 	}
 	// 画定数
 	_ = canvas.ParseFontFace(fontsd, 30*accuracy)
-	tw, th = cal(a, 94)
+	tw, th = calc(a, 94)
 	if list.Level != "" {
 		canvas.DrawStringAnchored(list.Level+" "+strconv.FormatFloat(float64(list.Difficulty), 'f', 1, 64), (138/2+tw/2+50)*accuracy, (140+th/4)*accuracy, 0.5, 0.5)
 	} else {
